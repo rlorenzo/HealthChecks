@@ -5,7 +5,11 @@ namespace HealthChecks.UI.Tests;
 
 public class mysql_storage_should
 {
+#if NET8_0
     private const string PROVIDER_NAME = "Pomelo.EntityFrameworkCore.MySql";
+#else
+    private const string PROVIDER_NAME = "Microting.EntityFrameworkCore.MySql";
+#endif
 
     [Fact]
     public void register_healthchecksdb_context_with_migrations()
@@ -32,6 +36,8 @@ public class mysql_storage_should
     [Fact]
     public async Task seed_database_and_serve_stored_executions()
     {
+        await ProviderTestHelper.WaitForMySqlAsync();
+
         var hostReset = new ManualResetEventSlim(false);
         var collectorReset = new ManualResetEventSlim(false);
 

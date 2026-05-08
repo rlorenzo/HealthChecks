@@ -13,6 +13,44 @@ public class ProviderTestHelper
 
     public static string SqlServerConnectionString() => "Server=tcp:localhost,5433;Initial Catalog=master;User Id=sa;Password=Password12!;TrustServerCertificate=true";
     public static string PostgresConnectionString() => "Server=127.0.0.1;Port=8010;User ID=postgres;Password=Password12!;database=ui";
+    public static string PostgresServerConnectionString() => "Server=127.0.0.1;Port=8010;User ID=postgres;Password=Password12!;";
     public static string MySqlConnectionString() => "Host=localhost;User Id=root;Password=Password12!;Database=UI";
+    public static string MySqlServerConnectionString() => "Host=localhost;User Id=root;Password=Password12!;";
     public static string SqliteConnectionString() => "Data Source = sqlite.db";
+
+    public static Task WaitForMySqlAsync() => WaitForDatabaseAsync(async () =>
+    {
+        await using var conn = new MySqlConnector.MySqlConnection(MySqlServerConnectionString());
+        await conn.OpenAsync();
+    });
+
+    public static Task WaitForSqlServerAsync() => WaitForDatabaseAsync(async () =>
+    {
+        await using var conn = new Microsoft.Data.SqlClient.SqlConnection(SqlServerConnectionString());
+        await conn.OpenAsync();
+    });
+
+    public static Task WaitForPostgresAsync() => WaitForDatabaseAsync(async () =>
+    {
+        await using var conn = new Npgsql.NpgsqlConnection(PostgresServerConnectionString());
+        await conn.OpenAsync();
+    });
+
+    private static async Task WaitForDatabaseAsync(Func<Task> tryConnect, int maxAttempts = 30, int delayMs = 1000)
+    {
+        for (var i = 0; i < maxAttempts; i++)
+        {
+            try
+            {
+                await tryConnect();
+                return;
+            }
+            catch
+            {
+                if (i == maxAttempts - 1)
+                    throw new TimeoutException("Database did not become available within 30 seconds.");
+                await Task.Delay(delayMs);
+            }
+        }
+    }
 }

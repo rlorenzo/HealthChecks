@@ -9,7 +9,11 @@ public class docker_image_storage_provider_configuration_should
     private const string SqliteProviderName = "Microsoft.EntityFrameworkCore.Sqlite";
     private const string PostgreProviderName = "Npgsql.EntityFrameworkCore.PostgreSQL";
     private const string InMemoryProviderName = "Microsoft.EntityFrameworkCore.InMemory";
+#if NET8_0
     private const string MySqlProviderName = "Pomelo.EntityFrameworkCore.MySql";
+#else
+    private const string MySqlProviderName = "Microting.EntityFrameworkCore.MySql";
+#endif
 
 #pragma warning disable ASPDEPR004, ASPDEPR008 // WebHostBuilder/IWebHost are required by Startup-based image tests
     private static IWebHost BuildHost(IEnumerable<KeyValuePair<string, string?>>? settings = null)
