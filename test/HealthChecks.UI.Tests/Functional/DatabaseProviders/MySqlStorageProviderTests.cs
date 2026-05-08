@@ -36,6 +36,8 @@ public class mysql_storage_should
     [Fact]
     public async Task seed_database_and_serve_stored_executions()
     {
+        await ProviderTestHelper.WaitForMySqlAsync();
+
         var hostReset = new ManualResetEventSlim(false);
         var collectorReset = new ManualResetEventSlim(false);
 

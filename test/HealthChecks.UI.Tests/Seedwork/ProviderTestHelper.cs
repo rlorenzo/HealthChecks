@@ -15,4 +15,40 @@ public class ProviderTestHelper
     public static string PostgresConnectionString() => "Server=127.0.0.1;Port=8010;User ID=postgres;Password=Password12!;database=ui";
     public static string MySqlConnectionString() => "Host=localhost;User Id=root;Password=Password12!;Database=UI";
     public static string SqliteConnectionString() => "Data Source = sqlite.db";
+
+    public static Task WaitForMySqlAsync() => WaitForDatabaseAsync(async () =>
+    {
+        await using var conn = new MySqlConnector.MySqlConnection(MySqlConnectionString());
+        await conn.OpenAsync();
+    });
+
+    public static Task WaitForSqlServerAsync() => WaitForDatabaseAsync(async () =>
+    {
+        await using var conn = new Microsoft.Data.SqlClient.SqlConnection(SqlServerConnectionString());
+        await conn.OpenAsync();
+    });
+
+    public static Task WaitForPostgresAsync() => WaitForDatabaseAsync(async () =>
+    {
+        await using var conn = new Npgsql.NpgsqlConnection(PostgresConnectionString());
+        await conn.OpenAsync();
+    });
+
+    private static async Task WaitForDatabaseAsync(Func<Task> tryConnect, int maxAttempts = 30, int delayMs = 1000)
+    {
+        for (var i = 0; i < maxAttempts; i++)
+        {
+            try
+            {
+                await tryConnect();
+                return;
+            }
+            catch
+            {
+                if (i == maxAttempts - 1)
+                    throw new TimeoutException("Database did not become available within 30 seconds.");
+                await Task.Delay(delayMs);
+            }
+        }
+    }
 }
