@@ -13,12 +13,14 @@ public class ProviderTestHelper
 
     public static string SqlServerConnectionString() => "Server=tcp:localhost,5433;Initial Catalog=master;User Id=sa;Password=Password12!;TrustServerCertificate=true";
     public static string PostgresConnectionString() => "Server=127.0.0.1;Port=8010;User ID=postgres;Password=Password12!;database=ui";
+    public static string PostgresServerConnectionString() => "Server=127.0.0.1;Port=8010;User ID=postgres;Password=Password12!;";
     public static string MySqlConnectionString() => "Host=localhost;User Id=root;Password=Password12!;Database=UI";
+    public static string MySqlServerConnectionString() => "Host=localhost;User Id=root;Password=Password12!;";
     public static string SqliteConnectionString() => "Data Source = sqlite.db";
 
     public static Task WaitForMySqlAsync() => WaitForDatabaseAsync(async () =>
     {
-        await using var conn = new MySqlConnector.MySqlConnection(MySqlConnectionString());
+        await using var conn = new MySqlConnector.MySqlConnection(MySqlServerConnectionString());
         await conn.OpenAsync();
     });
 
@@ -30,7 +32,7 @@ public class ProviderTestHelper
 
     public static Task WaitForPostgresAsync() => WaitForDatabaseAsync(async () =>
     {
-        await using var conn = new Npgsql.NpgsqlConnection(PostgresConnectionString());
+        await using var conn = new Npgsql.NpgsqlConnection(PostgresServerConnectionString());
         await conn.OpenAsync();
     });
 
